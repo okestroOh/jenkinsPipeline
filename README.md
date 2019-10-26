@@ -1,5 +1,5 @@
 # 단비챗봇 실습
-### 01. 챗봇 생성하기 - [링크](https://github.com/gbible45/danbeeTraining/blob/master/02.%20%EC%9D%98%EB%8F%84%EC%B6%94%EB%A1%A0(Intent)%20%EC%83%9D%EC%84%B1.md)
+### 01. 챗봇 생성하기 - [링크](02.%20%EC%9D%98%EB%8F%84%EC%B6%94%EB%A1%A0(Intent)%20%EC%83%9D%EC%84%B1.md)
 ### 02. 의도추론(Intent) 생성
 ### 03. 단어추출(Entity) 등록
 ### 04. 대화흐름(Chatflow) 등록
