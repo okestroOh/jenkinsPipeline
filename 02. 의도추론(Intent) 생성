@@ -1,0 +1,17 @@
+## 1. 의도추론(Intent) 생성 - 자연어이해 > 의도추론
+
+![image](https://user-images.githubusercontent.com/24771449/67613433-2d89f500-f7e8-11e9-897c-90e7480cbd60.png)
+
+![image](https://user-images.githubusercontent.com/24771449/67613440-51e5d180-f7e8-11e9-82c1-9afeadf59855.png)
+
+- 예문 등록
+
+![image](https://user-images.githubusercontent.com/24771449/67613453-996c5d80-f7e8-11e9-871a-dc5c72cc4cc4.png)
+
+- 핵심키워드
+
+![image](https://user-images.githubusercontent.com/24771449/67613536-8f972a00-f7e9-11e9-968c-3c2772c86fca.png)
+
+- 추출되는 파라미터
+
+![image](https://user-images.githubusercontent.com/24771449/67613547-a6d61780-f7e9-11e9-8e35-1cd96d32ee15.png)
