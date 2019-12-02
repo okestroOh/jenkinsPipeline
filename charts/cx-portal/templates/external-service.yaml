@@ -1,0 +1,137 @@
+---
+{{- if .Values.keystone.externalHost }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: cx-keystone-svc
+spec:
+  ports:
+    - name: neutron
+      protocol: TCP
+      port: {{ default 9696 .Values.keystone.neutronPort }}
+      targetPort: {{ default 9696 .Values.keystone.neutronPort }}
+    - name: keystone
+      protocol: TCP
+      port: {{ default 5000 .Values.keystone.keystonePort }}
+      targetPort: {{ default 5000 .Values.keystone.keystonePort }}
+    - name: keystone-admin
+      protocol: TCP
+      port: {{ default 35357 .Values.keystone.keystoneAdminPort }}
+      targetPort: {{ default 35357 .Values.keystone.keystoneAdminPort }}
+    - name: placement
+      protocol: TCP
+      port: {{ default 8778 .Values.keystone.placementPort }}
+      targetPort: {{ default 8778 .Values.keystone.placementPort }}
+    - name: swift
+      protocol: TCP
+      port: {{ default 80 .Values.keystone.swiftPort }}
+      targetPort: {{ default 80 .Values.keystone.swiftPort }}
+    - name: nova
+      protocol: TCP
+      port: {{ default 8774 .Values.keystone.novaPort }}
+      targetPort: {{ default 8774 .Values.keystone.novaPort }}
+    - name: cinder
+      protocol: TCP
+      port: {{ default 8776 .Values.keystone.cinderPort }}
+      targetPort: {{ default 8776 .Values.keystone.cinderPort }}
+    - name: glance
+      protocol: TCP
+      port: {{ default 9292 .Values.keystone.glancePort }}
+      targetPort: {{ default 9292 .Values.keystone.glancePort }}
+---
+
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: cx-keystone-svc
+subsets:
+  - addresses:
+      - ip: {{ default "" .Values.keystone.externalHost }}
+    ports:
+      - name: neutron
+        port: {{ default 9696 .Values.keystone.neutronPort }}
+      - name: keystone
+        port: {{ default 5000 .Values.keystone.keystonePort }}
+      - name: keystone-admin
+        port: {{ default 35357 .Values.keystone.keystoneAdminPort }}
+      - name: placement
+        port: {{ default 8778 .Values.keystone.placementPort }}
+      - name: swift
+        port: {{ default 80 .Values.keystone.swiftPort }}
+      - name: nova
+        port: {{ default 8774 .Values.keystone.novaPort }}
+      - name: cinder
+        port: {{ default 8776 .Values.keystone.cinderPort }}
+      - name: glance
+        port: {{ default 9292 .Values.keystone.glancePort }}
+
+---
+{{- end }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cx-monit-svc
+spec:
+  ports:
+    - name: api
+      protocol: TCP
+      port: {{ default 9000 .Values.monit.apiPort }}
+      targetPort: {{ default 9000 .Values.monit.apiPort }}
+    - name: telegraf
+      protocol: TCP
+      port: {{ default 8094 .Values.monit.telegrafPort }}
+      targetPort: {{ default 8094 .Values.monit.telegrafPort }}
+    - name: beat
+      protocol: TCP
+      port:  {{ default 5044 .Values.monit.beatPort }}
+      targetPort:  {{ default 5044 .Values.monit.beatPort }}
+
+---
+
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: cx-monit-svc
+subsets:
+  - addresses:
+      - ip: {{ default "" .Values.monit.externalHost }}
+    ports:
+      - name: api
+        port: {{ default 9000 .Values.monit.apiPort }}
+      - name: telegraf
+        port: {{ default 8094 .Values.monit.telegrafPort }}
+      - name: beat
+        port:  {{ default 5044 .Values.monit.beatPort }}
+
+---
+
+{{- if .Values.fabric.enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cx-fabric-svc
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: {{ default "8080" .Values.fabric.apiPort }}
+      targetPort: {{ default "8080" .Values.fabric.apiPort }}
+
+---
+
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: cx-fabric-svc
+subsets:
+  - addresses:
+      - ip: {{ default "106.248.228.2" .Values.fabric.apiEndpointHost }}
+    ports:
+      - name: web
+        port: {{ default "8080" .Values.fabric.apiPort }}
+
+---
+
+{{- end }}

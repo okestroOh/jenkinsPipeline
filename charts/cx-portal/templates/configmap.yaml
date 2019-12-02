@@ -1,0 +1,341 @@
+
+{{- if .Values.config.enabled }}
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cx-comm-cm
+data:
+  application.properties: |
+    ## ConfigMap
+    server.tomcat.uri-encoding: UTF-8
+    aes256.key: vrN8aKO8m69fQpLjOYKwH0kkni4pyvtl
+
+    spring.profiles.active: config
+
+    logging.level.org.springframework.web=INFO
+    logging.level.org.springframework.security=DEBUG
+    logging.level.com.crossent.uaaxpert=DEBUG
+
+    token.name=X-HEADER-TOKEN
+    cookie.token.name.user=U-TOKEN
+
+    paas.region.id=1
+    paas.use=false
+
+    uaa.clientid=uaaXpert
+    uaa.clientsecret=uaaXpertsecret
+    login.clientid=login
+    login.clientsecret=loginsecret
+
+    uaaxpert.admin.group=uaaXpert.admin
+    #uaaxpert.manager.group=company.admin
+    uaaxpert.company.manager.group=company.manager
+
+    ## Upload File Size
+    spring.http.multipart.max-file-size=100MB
+    spring.http.multipart.max-request-size=100MB
+
+    # Gmail SMTP
+    spring.mail.host = smtp.gmail.com
+    spring.mail.username = paasxpert.com@gmail.com
+    spring.mail.password = nuxokzkviwfpjwqg
+    spring.mail.properties.mail.smtp.auth = true
+    spring.mail.properties.mail.smtp.socketFactory.port = 465
+    spring.mail.properties.mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory
+    spring.mail.properties.mail.smtp.socketFactory.fallback = false
+    spring.mail.properties.mail.smtp.ssl.enable = false
+
+  application-config.properties: |
+    ## ConfigMap
+    user.timezone=Asia/Seoul
+
+    server.port=8081
+
+    admin.id=${COMM_ADMIN_ID:admin@admin.com}
+    admin.password=${COMM_ADMIN_PASS:admin1234}
+    domain.name=${DOMAIN_NAME:localhost}
+
+    uaa.endpoint=http://${UAA_API_HOST:localhost}:${UAA_API_PORT:8080}
+    iaas.api.endpoint=http://${IAAS_API_HOST:localhost}:${IAAS_API_PORT:8082}/api/iaas/v1.0
+    monit.api.endpoint=http://${MONIT_API_HOST:1localhost}::${MONIT_API_PORT:9000}/api/monit/v1.0
+
+    # 아토 Fabric 연계
+    fabric.ui.use=${FABRIC_USE:false}
+    fabric.ui.admin.id=${FABRIC_ADMIN_ID:}
+    fabric.ui.admin.passwd=${FABRIC_ADMIN_PASSWD:}
+    fabric.api.endpoint=${FABRIC_API_PROTOCOL:https}://${FABRIC_API_HOST:}:${FABRIC_API_PORT:}/obelle-fabric/ui-api/v4.5
+
+    #DB Connection
+    #spring.datasource.max-active: 10
+    spring.datasource.url=jdbc:mysql://${COMM_DB_HOST:localhost}:${COMM_DB_PORT:3306}/${COMM_DB_NAME:comm}?autoReconnect=true&useUnicode=true&characterEncoding=utf8
+    spring.datasource.username: ${COMM_DB_USER:comm}
+    spring.datasource.password: ${COMM_DB_PASS:comm!234}
+
+    spring.jpa.database=mysql
+    ##update:엔티티 구조에 따라 데이터베이스를 변경
+    ##spring.jpa.hibernate.ddl-auto=update / create-drop
+    spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.show-sql=false
+
+    # Redis
+    spring.data.redis.repositories.enabled = false
+    spring.redis.host=${SESSION_REDIS_HOST:localhost}
+    spring.redis.port=${SESSION_REDIS_PORT:6379}
+    # Namespace for keys used to store sessions.
+    spring.session.redis.namespace=CommSession
+
+    #############################
+    # fileTarget S3, SWIFT, LOCAL
+    #############################
+    file.target : LOCAL
+    file.public : yes
+
+    # LOCAL
+    local.uploadPath : /xpert/upload
+    local.bucketName : comm
+
+    # S3
+    #s3.accessKey :
+    #s3.bucketName : comm-board
+    #s3.companyBucketName : comm-board
+    #s3.endPoint :
+    #s3.authPath :
+    #s3.secretKey :
+
+    # SWIFT
+    #swift.username : portal
+    #swift.authUrl :
+    #swift.containerName : portal
+    #swift.companyContainerName : portal
+    #swift.password :
+
+    #SWAGGER
+    commapi.swagger.host=${DOMAIN_NAME:localhost}
+    commapi.swagger.pathMapping=/comm-api
+    swagger.api.endpoint=${DOMAIN_NAME:localhost}/comm-api
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cx-iaas-cm
+data:
+  application.properties: |
+    ## ConfigMap
+    iaas.api.version=v1.0
+
+    iaas.loadbalancer.nfd=LB-NFD
+    iaas.vpn.nfd=VPN-NFD
+    iaas.firewall.nfd=FW-NFD
+    iaas.vrouter.nfd=VR-NFD
+
+    spring.profiles.active=config
+    spring.http.encoding.charset=UTF-8
+    log4j.appender.stdout.encoding=UTF-8
+    spring.http.encoding.enabled=true
+    file.encoding=utf-8
+    client.encoding.override=utf-8
+
+    server.tomcat.max-threads=100
+    java.net.preferIPv4Stack=true
+    java.net.preferIPv4Addresses=true
+
+    ### email 인증
+    spring.mail.host=smtp.gmail.com
+    spring.mail.username=paasxpert@crossent.com
+    spring.mail.properties.mail.smtp.auth=true
+    spring.mail.properties.mail.smtp.socketFactory.port=465
+    spring.mail.properties.mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+    spring.mail.properties.mail.smtp.socketFactory.fallback=false
+    spring.mail.properties.mail.smtp.ssl.enable=true
+
+  application-config.properties: |
+    user.timezone=Asia/Seoul
+
+    ### 실행 모드 dev/stg/prod
+    iaas.run.type=prod
+
+    ### spring boot 설정
+    server.port=8082
+
+    ### openstack
+    iaas.default.zone.endpoint=http://${IAAS_KEYSTONE_HOST:localhost}:${IAAS_KEYSTONE_PORT:5000}/v3
+    iaas.provider=openstack-newton
+    iaas.IaasAdmin.id=${IAAS_ADMIN_ID:admin}
+    iaas.IaasAdmin.passwd=${IAAS_ADMIN_PASS:crossent12}
+
+    ### 인스턴스 생성 방법 (volume or vms)
+    iaas.use.instance.volume=true
+
+    #identity가 다른 openStack IP로 연결
+    iaas.default.zone.serviceHost=${IAAS_ZONE_SERVICE_HOST:}
+
+    ### monitoring meta
+    iaas.mon.host.telegraf=${MONIT_TELEGRAF_HOST:localhost}
+    iaas.mon.port.telegraf=${MONIT_TELEGRAF_PORT:8094}
+    iaas.mon.host.beat=${MONIT_BEAT_HOST:localhost}
+    iaas.mon.port.beat=${MONIT_BEAT_PORT:5044}
+
+    #json객체중 null값은 http로 전송안함
+    spring.jackson.default-property-inclusion=non_null
+
+    ### database
+    spring.datasource.url=jdbc:mysql://${IAAS_DB_HOST:localhost}:${IAAS_DB_PORT:3306}/${IAAS_DB_NAME:iaas}?useUnicode=true&characterEncoding=utf8
+    spring.datasource.username=${IAAS_DB_USER:iaas}
+    spring.datasource.password=${IAAS_DB_PASS:iaas!234}
+    spring.datasource.driverclassName=com.mysql.jdbc.Driver
+    spring.datasource.max-active=30
+    spring.datasource.max-idle=8
+    spring.datasource.min-idle=8
+    spring.datasource.initial-size=10
+    spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.show-sql=false
+    spring.jpa.database=MYSQL
+    #spring.jpa.properties.hibernate.enable_lazy_load_no_trans=true
+
+    ### redis
+    spring.data.redis.repositories.enabled = false
+    spring.redis.host=${SESSION_REDIS_HOST:localhost}
+    spring.redis.port=${SESSION_REDIS_PORT:6379}
+    spring.session.redis.namespace=IaasSession
+
+    ### cloudXpert system SW deploy agent name
+    iaas.system.agent.name=${IAAS_SYSTEM_AGENT_NAME:cx_agent}
+    iaas.system.agent.image=${IAAS_SYSTEM_AGENT_IMAGE:Ubuntu-16.04-Server-AA1.1.raw}
+    iaas.system.sw.image=${IAAS_SYSTEM_SW_IMAGE:Ubuntu-16.04-Server-SS1.1.raw}
+
+    ### uaa token
+    oauth.client.id=app
+    uaaxpert.token.decode.endpoint=http://${COMM_API_HOST:localhost}:${COMM_API_PORT:8081}/api/portal/v1/token/decode
+    uaaxpert.token.check.endpoint=http://${COMM_API_HOST:localhost}:${COMM_API_PORT:8081}/api/portal/v1/token/check
+
+    ### 도메인 라우트 사용 설정
+    iaas.use.domain.route=false
+
+    ### private 디폴트 네트워크 설정
+    iaas.default.cidr=${IAAS_DEFAULT_CIDR:10.1.1.0}
+    iaas.default.nameserver=${IAAS_DEFAULT_NAMESERVER:}
+
+    iaas.public.network.prefix=PUB_NET
+
+    ## lbaas, octavia
+    iaas.default.lbType=${IAAS_LBTYPE:lbaas}
+
+    ### object storage
+    iaas.use.object.storage=false
+    #rados.endPoint=xxx.xxx.xxx.xxx:7480
+    #rados.secretKey=
+    #rados.accessKey=
+
+    #############################
+    # fileTarget S3, SWIFT, LOCAL
+    #############################
+    file.target=LOCAL
+    file.public=yes
+
+    # LOCAL
+    local.uploadPath=/xpert/upload
+    local.bucketName=app-market-dev
+    local.userBucketName=app-market-dev
+
+    # S3
+    #s3.accessKey=
+    #s3.secretKey=
+    #s3.bucketName=iaas-deploy-admin-bucket
+    #s3.userBucketName=iaas-deploy-user-bucket
+    #s3.endPoint=xxx.xxx.xxx.xxx:7480
+
+    # SWIFT
+    #swift.username=
+    #swift.password=
+    #swift.authUrl=http://swift.kpaasta.cloud/auth/v1.0
+    #swift.containerName=portal-dev-paas-admin
+    #swift.userContainerName=portal-dev-paas-user
+
+    ### 메세지
+    spring.messages.basename=messages-framework, messages-portal
+
+    ### 파일 처리 관련 설정
+    spring.http.multipart.max-file-size=10000MB
+    spring.http.multipart.max-request-size=10000MB
+    spring.http.multipart.file-size-threshold=0
+    spring.http.multipart.location=/xpert/temp/iaaxpert-temp
+    iaas.image.upload.base.path=/xpert/iaas_api_image_path
+
+    ### portal에서 swagger 접속시 사용
+    iaasapi.swagger.host=${DOMAIN_NAME:localhost}
+    iaasapi.swagger.pathMapping=/iaas-api
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cx-web-cm
+data:
+  nginx.conf: |
+    ## ConfigMap
+    user  nginx;
+    worker_processes  auto;
+    worker_rlimit_nofile 65535;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+    events {
+      worker_connections  10240;
+      multi_accept on;
+      use epoll;
+    }
+
+    http {
+      include       /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+
+      log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+      '$status $body_bytes_sent "$http_referer" '
+      '"$http_user_agent" "$http_x_forwarded_for"';
+
+      access_log  /var/log/nginx/access.log  main;
+
+      sendfile        on;
+            #tcp_nopush     on;
+
+      keepalive_timeout  65;
+
+            #gzip  on;
+
+      include /etc/nginx/conf.d/*.conf;
+    }
+
+  default.conf: |
+    ## ConfigMap
+    server {
+      listen 80 default_server;
+      listen [::]:80 default_server;
+
+      root /usr/share/nginx/html;
+
+      index index.html;
+
+      server_name _
+
+      add_header "X-UA-Compatible" "IE=Edge,chrome=1";
+
+      client_max_body_size    500m;
+      client_body_buffer_size 256k;
+
+      location / {
+        try_files $uri $uri/ =404;
+        proxy_connect_timeout       90;
+        proxy_send_timeout          90;
+        proxy_buffers              4 32k;
+        proxy_temp_file_write_size  64k;
+      }
+    }
+
+{{- end }}

@@ -1,0 +1,13 @@
+appVersion: 0.2.0
+name: cx-portal
+description: cx portal service package web comm iaas
+kubeVersion: ">=1.2.0"
+keywords:
+  - cx-portal
+home: https://www.crossent.com
+sources:
+  - https://github.com/CrossentCloud/x1-portal-deploy/helm-chart
+maintainers:
+  - name: crossent
+    email: skyungkim@crossent.com
+version: 0.2.0

@@ -1,0 +1,82 @@
+
+ingressType: "ranchar"
+
+config:
+  enabled: false
+
+redis:
+  serviceName: "cx-session-redis-ha-haproxy"
+  sessionRedisPort: "6379"
+
+mariadb:
+  dbHost: "cx-db-mariadb-galera"
+  dbPort: "3306"
+
+uaa:
+  replicas: 3
+  dbName: "uaa"
+  dbUser: "uaa"
+  dbPass: "uaa1234"
+  image.registry: ""
+  image.repository: "crossentcx/cx-uaa"
+  image.tag: "0.1.0"
+  image.pullPolicy: "IfNotPresent"
+
+web:
+  replicas: 3
+  domainName: ""
+  image.registry: ""
+  image.repository: "crossentcx/cx-web"
+  image.tag: "0.1.1"
+  image.pullPolicy: "IfNotPresent"
+
+comm:
+  replicas: 3
+  dbName: "comm"
+  dbUser: "comm"
+  dbPass: "comm1234"
+  adminId: "admin"
+  adminPass: "admin1234"
+  image.registry: ""
+  image.repository: "crossentcx/cx-comm"
+  image.tag: "0.1.1"
+  image.pullPolicy: "IfNotPresent"
+
+iaas:
+  replicas: "3"
+  dbName: "iaas"
+  dbUser: "iaas"
+  dbPass: "iaas1234"
+  lbType: "lbaas"
+  defaultNameServer: ""
+  adminId: "admin"
+  adminPass: "crossent1234"
+  image.registry: ""
+  image.repository: "crossentcx/cx-iaas"
+  image.tag: "0.1.1"
+  image.pullPolicy: "IfNotPresent"
+
+monit:
+  endpointHost: ""
+  apiPort: 9000
+  telegrafPort: 8094
+  beatPort: 5044
+
+keystone:
+  endpointHost: ""
+  keystonePort: 5000
+  neutronPort: 9696
+  keystoneAdminPort: 35357
+  placementPort: 8778
+  swiftPort: 80
+  novaPort: 8774
+  cinderPort: 8776
+  glancePort: 9292
+
+fabric:
+  enabled: false
+  apiEndpointHost: ""
+  adminId: ""
+  adminPass: ""
+  protocol: "https"
+  apiPort: 8080

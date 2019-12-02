@@ -1,0 +1,277 @@
+---
+
+apiVersion: apps/v1beta2
+kind: {{ default "Deployment" .Values.deployKind }}
+metadata:
+  name: cx-uaa-deployment
+spec:
+  replicas: {{ default "1" .Values.uaa.replicas }}
+  minReadySeconds: 120
+  selector:
+    matchLabels:
+      app: cx-uaa-deployment
+  template:
+    metadata:
+      name: cx-uaa-deployment-pod
+      labels:
+        app: cx-uaa-deployment
+    spec:
+      containers:
+        - name: cx-uaa-deployment
+          image: {{ template "cx-uaa.image" . }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.uaa.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_TCP_ADDR
+              value: {{ default "cx-db-mariadb-galera" .Values.mariadb.dbHost | quote }}
+            - name: DB_TCP_PORT
+              value: {{ default "3306" .Values.mariadb.dpPort | quote }}
+            - name: DB_ENV_NAME
+              value: {{ default "uaa" .Values.uaa.dbName | quote }}
+            - name: DB_ENV_USER
+              value: {{ default "uaa" .Values.uaa.dbUser | quote }}
+            - name: EXPOSE_JMX_METRICS
+              value: {{ default "false" .Values.uaa.metricsEnabled | quote }}
+            - name: EXPOSE_JMX_METRICS_PORT
+              value: {{ default "9400" .Values.uaa.metricsPort | quote }}
+            - name: DB_ENV_PASS
+              valueFrom:
+                secretKeyRef:
+                   name: cx-portal-sc
+                   key: uaaDbPass
+
+---
+
+apiVersion: apps/v1beta2
+kind: {{ default "Deployment" .Values.deployKind }}
+metadata:
+  name: cx-comm-deployment
+spec:
+  replicas: {{ default "1" .Values.comm.replicas }}
+  minReadySeconds: 60
+  selector:
+    matchLabels:
+      app: cx-comm-deployment
+  template:
+    metadata:
+      name: cx-comm-deployment-pod
+      labels:
+        app: cx-comm-deployment
+    spec:
+      containers:
+        - name: cx-comm-deployment
+          image: {{ template "cx-comm.image" . }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.comm.image.pullPolicy }}
+          ports:
+            - containerPort: 8081
+          env:
+  {{- if .Values.web.domainName }}
+            - name: DOMAIN_NAME
+              value: {{ default "" .Values.web.domainName | quote }}
+  {{- end }}
+            - name: SESSION_REDIS_HOST
+              value: {{ default "cx-session-redis-ha-haproxy" .Values.redis.serviceName | quote }}
+            - name: SESSION_REDIS_PORT
+              value: {{ default "6379" .Values.redis.servicePort | quote }}
+            - name: COMM_ADMIN_ID
+              value: {{ default "admin@admin.com" .Values.comm.adminId | quote }}
+            - name: UAA_API_HOST
+              value: "cx-uaa-svc"
+            - name: UAA_API_PORT
+              value: "8080"
+            - name: IAAS_API_HOST
+              value: "cx-iaas-svc"
+            - name: IAAS_API_PORT
+              value: "8082"
+            - name: MONIT_API_HOST
+              value: "cx-monit-svc"
+            - name: MONIT_API_PORT
+              value: {{ default "9000" .Values.monit.apiPort | quote }}
+            - name: COMM_DB_HOST
+              value: {{ default "cx-db-mariadb-galera" .Values.mariadb.dbHost | quote }}
+            - name: COMM_DB_PORT
+              value: {{ default "3306" .Values.mariadb.dpPort | quote }}
+            - name: COMM_DB_NAME
+              value: {{ default "comm" .Values.comm.dbName | quote }}
+            - name: COMM_DB_USER
+              value: {{ default "comm" .Values.comm.dbUser | quote }}
+            - name: FABRIC_USE
+              value: {{ default "false" .Values.fabric.enabled | quote }}
+  {{- if .Values.fabric.adminId }}
+            - name: FABRIC_ADMIN_ID
+              value: {{ default "" .Values.fabric.adminId | quote }}
+  {{- end }}
+            - name: FABRIC_API_PROTOCOL
+              value: {{ default "https" .Values.fabric.protocol | quote }}
+            - name: FABRIC_API_HOST
+              value: "cx-fabric-svc"
+            - name: FABRIC_API_PORT
+              value: {{ default "8080" .Values.fabric.apiPort | quote }}
+            - name: COMM_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                   name: cx-portal-sc
+                   key: commDbPass
+            - name: COMM_ADMIN_PASS
+              valueFrom:
+                secretKeyRef:
+                   name: cx-portal-sc
+                   key: commAdminPass
+            - name: FABRIC_ADMIN_PASSWD
+              valueFrom:
+                secretKeyRef:
+                   name: cx-portal-sc
+                   key: fabricAdminPass
+  {{- if .Values.config.enabled }}
+          volumeMounts:
+            - name: cx-comm-prop
+              mountPath: /xpert/x1-portal-api-comm/config
+              readOnly: true
+  {{- end }}
+  {{- if .Values.config.enabled }}
+      volumes:
+        - name: cx-comm-prop
+          configMap:
+            name: cx-comm-cm
+  {{- end }}
+
+---
+
+apiVersion: apps/v1beta2
+kind: {{ default "Deployment" .Values.deployKind }}
+metadata:
+  name: cx-iaas-deployment
+spec:
+  replicas: {{ default "1" .Values.iaas.replicas }}
+  minReadySeconds: 60
+  selector:
+    matchLabels:
+      app: cx-iaas-deployment
+  template:
+    metadata:
+      name: cx-iaas-deployment-pod
+      labels:
+        app: cx-iaas-deployment
+    spec:
+      containers:
+        - name: cx-iaas-deployment
+          image: {{ template "cx-iaas.image" . }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.iaas.image.pullPolicy }}
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SESSION_REDIS_HOST
+              value: {{ default "cx-session-redis-ha-haproxy" .Values.redis.serviceName | quote }}
+            - name: SESSION_REDIS_PORT
+              value: {{ default "6379" .Values.redis.servicePort | quote }}
+            - name: IAAS_KEYSTONE_HOST
+              value: {{ default "cx-keystone-svc" .Values.keystone.keystoneHost | quote }}
+            - name: IAAS_KEYSTONE_PORT
+              value: {{ default "5000" .Values.keystone.keystonePort | quote }}
+  {{- if .Values.iaas.zoneServiceHost }}
+            - name: IAAS_ZONE_SERVICE_HOST
+              value: {{ default "" .Values.iaas.zoneServiceHost | quote }}
+  {{- end }}
+  {{- if .Values.monit.telegrafHost }}
+            - name: MONIT_TELEGRAF_HOST
+              value: {{ default "" .Values.monit.telegrafHost | quote }}
+  {{- end }}
+            - name: MONIT_TELEGRAF_PORT
+              value: {{ default "8094" .Values.monit.telegrafPort | quote }}
+  {{- if .Values.monit.beatHost }}
+            - name: MONIT_BEAT_HOST
+              value: {{ default "" .Values.monit.beatHost | quote }}
+  {{- end }}
+            - name: MONIT_BEAT_PORT
+              value: {{ default "5044" .Values.monit.beatPort | quote }}
+            - name: IAAS_DB_HOST
+              value: {{ default "cx-db-mariadb-galera" .Values.mariadb.dbHost | quote }}
+            - name: IAAS_DB_PORT
+              value: {{ default "3306" .Values.mariadb.dpPort | quote }}
+            - name: IAAS_DB_NAME
+              value: {{ default "iaas" .Values.iaas.dbName | quote }}
+            - name: IAAS_DB_USER
+              value: {{ default "iaas" .Values.iaas.dbUser | quote }}
+            - name: COMM_API_HOST
+              value: "cx-comm-svc"
+            - name: COMM_API_PORT
+              value: "8081"
+            - name: IAAS_LBTYPE
+              value: {{ default "lbaas" .Values.iaas.lbType | quote }}
+  {{- if .Values.iaas.defaultCidr }}
+            - name: IAAS_DEFAULT_CIDR
+              value: {{ default "10.1.1.0" .Values.iaas.defaultCidr | quote }}
+  {{- end }}
+  {{- if .Values.iaas.defaultNameServer }}
+            - name: IAAS_DEFAULT_NAMESERVER
+              value: {{ default "" .Values.iaas.defaultNameServer | quote }}
+  {{- end }}
+            - name: IAAS_ADMIN_ID
+              value: {{ default "admin" .Values.iaas.adminId | quote }}
+            - name: IAAS_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                   name: cx-portal-sc
+                   key: iaasDbPass
+            - name: IAAS_ADMIN_PASS
+              valueFrom:
+                secretKeyRef:
+                   name: cx-portal-sc
+                   key: iaasAdminPass
+  {{- if .Values.config.enabled }}
+          volumeMounts:
+            - name: cx-iaas-prop
+              mountPath: /xpert/x1-portal-api-iaas/config
+              readOnly: true
+  {{- end }}
+  {{- if .Values.config.enabled }}
+      volumes:
+        - name: cx-iaas-prop
+          configMap:
+            name: cx-iaas-cm
+  {{- end }}
+
+---
+
+apiVersion: apps/v1beta2
+kind: {{ default "Deployment" .Values.deployKind }}
+metadata:
+  name: cx-web-deployment
+spec:
+  replicas: {{ default "1" .Values.web.replicas }}
+  minReadySeconds: 5
+  selector:
+    matchLabels:
+      app: cx-web-deployment
+  template:
+    metadata:
+      name: cx-web-deployment-pod
+      labels:
+        app: cx-web-deployment
+    spec:
+      containers:
+        - name: cx-web-deployment
+          image: {{ template "cx-web.image" . }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.web.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+  {{- if .Values.config.enabled }}
+          volumeMounts:
+            - name: nginx-conf
+              subPath: nginx.conf
+              mountPath: /etc/nginx/nginx.conf
+              readOnly: true
+            - name: nginx-conf
+              subPath: default.conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              readOnly: true
+  {{- end }}
+  {{- if .Values.config.enabled }}
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: cx-web-cm
+  {{- end }}
+
+---
