@@ -3,7 +3,7 @@
 ## 개요
 ### [01. scripted문법](pipeline%20설명/01.%20scripted문법.md)
 ### [02. declarative문법](pipeline%20설명/02.%20declarative문법.md)
-## 상위태그별 역할
+## declarative문법 상위태그별 역할
 ### [03. agent](pipeline%20설명/03.%20agent.md)
 ### [04. triggers](pipeline%20설명/04.%20triggers.md)
 ### [05. options](pipeline%20설명/05.%20options.md)
