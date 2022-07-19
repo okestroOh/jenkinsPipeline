@@ -12,7 +12,9 @@
 ### [08. parameters](pipeline%20설명/08.%20parameters.md)
 ### [09. stages](pipeline%20설명/09.%20stages.md)
 ### [10. post](pipeline%20설명/10.%20post.md)
+## 추가설명
+### [11. etc](pipeline%20설명/11.%20etc.md)
 ## 에러 문구별 해결방법(추가중)
-### [11. error](pipeline%20설명/11.%20error.md)
+### [12. error](pipeline%20설명/12.%20error.md)
 
 
